@@ -438,7 +438,7 @@ input[type="range"] { width: 100%; accent-color: var(--felt); height: 28px; }
     if (!installable() || standalone()) return '';
     try { if (localStorage.getItem('cards.noInstall')) return ''; } catch (e) {}
     if (installEvt) return '<section class="install"><img src="icon-192.png" alt=""><div><b>Installa Galverna Cards</b><span>Sul telefono, come un\'app.</span></div><button class="btn" data-act="install">Installa</button><button class="x" data-act="noInstall" aria-label="Chiudi">×</button></section>';
-    if (isIOS()) return '<section class="install ios"><img src="icon-192.png" alt=""><div><b>Installa Galverna Cards</b><span>Tocca <svg viewBox="0 0 24 24" aria-label="Condividi"><path d="M12 15V3m0 0L8 7m4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> in Safari, poi <b>Aggiungi alla schermata Home</b>.</span></div><button class="x" data-act="noInstall" aria-label="Chiudi">×</button></section>';
+    if (isIOS()) return '<section class="install ios"><img src="icon-192.png" alt=""><div><b>Installa Galverna Cards</b><span>Tocca <svg viewBox="0 0 24 24" aria-label="Condividi"><path d="M12 15V3m0 0L8 7m4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Condividi in Safari (se non lo vedi, prima il menu ☰), poi <b>Aggiungi alla schermata Home</b>.</span></div><button class="x" data-act="noInstall" aria-label="Chiudi">×</button></section>';
     return '';
   }
 

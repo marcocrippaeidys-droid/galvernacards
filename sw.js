@@ -1,5 +1,5 @@
 // Cards: tiene l'app disponibile anche senza connessione
-var CACHE = 'cards-v8';
+var CACHE = 'cards-v9';
 var FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {
