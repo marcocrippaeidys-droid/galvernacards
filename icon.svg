@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#2546c8"/>
+  <g transform="translate(256 226) scale(4.8) translate(-32 -34)">
+    <g transform="rotate(-20 32 58)"><rect x="19" y="8" width="26" height="40" rx="4.5" fill="#1a3396" stroke="#ffffff" stroke-opacity=".35" stroke-width="1"/><rect x="22.5" y="11.5" width="19" height="33" rx="2.5" fill="none" stroke="#ffffff" stroke-opacity=".45" stroke-width="1.4"/><path d="M32 20 l5 8 -5 8 -5 -8z" fill="#ffffff" fill-opacity=".5"/></g>
+    <g transform="rotate(2 32 58)"><rect x="19" y="8" width="26" height="40" rx="4.5" fill="#e0533c"/><path d="M27 19 h10 c0 6 -2.5 9 -5 9.5 c-2.5 -.5 -5 -3.5 -5 -9.5z M32 28.5 v6 M28.5 35.5 h7" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g transform="rotate(22 32 58)"><rect x="19" y="8" width="26" height="40" rx="4.5" fill="#fffdf8"/><circle cx="32" cy="27" r="7.5" fill="#d99a1e"/><circle cx="32" cy="27" r="4.3" fill="none" stroke="#fffdf8" stroke-width="1.6"/><circle cx="32" cy="27" r="1.4" fill="#fffdf8"/></g>
+  </g>
+  <text x="256" y="452" text-anchor="middle" font-family="Avenir Next, Helvetica Neue, Arial, sans-serif" font-weight="800" font-size="52" letter-spacing="7" fill="#f6c453">GALVERNA</text>
+</svg>

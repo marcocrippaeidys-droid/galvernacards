@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2546c8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Galverna Cards">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Galverna Cards</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: una colonna da telefono, header con logo, tab bar in basso come un'app; blu cobalto come accento, corallo per la Squadra B */
+:root {
+  --bg: #f4f5fa;
+  --surface: #ffffff;
+  --surface-2: #e9ecf6;
+  --ink: #141a33;
+  --muted: #5e6584;
+  --line: #d9ddec;
+  --felt: #2546c8;
+  --felt-soft: #dfe5fb;
+  --on-felt: #ffffff;
+  --red: #e0533c;
+  --gold: #d99a1e;
+  --win: #1c8a52;
+  --loss: #d4402c;
+  --draw: #9a7a14;
+  --shadow: 0 1px 2px rgba(20, 26, 60, .06), 0 8px 24px rgba(20, 26, 60, .07);
+  --f-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r: 18px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c0f1d; --surface: #141a2e; --surface-2: #1c2440; --ink: #e9ecf8; --muted: #959cc0;
+    --line: #283154; --felt: #6d8bff; --felt-soft: #1f2a55; --on-felt: #0a0f24; --red: #ff7a63;
+    --gold: #f0bd4f; --win: #4fcf8a; --loss: #ff7a63; --draw: #e0c25a;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c0f1d; --surface: #141a2e; --surface-2: #1c2440; --ink: #e9ecf8; --muted: #959cc0;
+  --line: #283154; --felt: #6d8bff; --felt-soft: #1f2a55; --on-felt: #0a0f24; --red: #ff7a63;
+  --gold: #f0bd4f; --win: #4fcf8a; --loss: #ff7a63; --draw: #e0c25a;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.45; -webkit-tap-highlight-color: transparent; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--felt); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.top-in, .wrap { max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.top-in { display: flex; align-items: center; gap: 10px; padding-block: 10px; }
+.brand { display: flex; align-items: center; gap: 8px; }
+.brand svg { width: 40px; height: 40px; flex: none; }
+.brand .word { display: grid; line-height: 1; }
+.brand b { font-family: var(--f-display); font-weight: 800; font-size: 26px; letter-spacing: -.02em; }
+.brand .x { font-family: var(--f-display); font-weight: 800; font-size: 11.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); margin-bottom: 3px; padding-left: 1px; }
+.top-day { margin-left: auto; font-size: 13px; color: var(--muted); text-align: right; }
+.wrap { padding-block: 18px 120px; display: grid; gap: 16px; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; box-shadow: var(--shadow); display: grid; gap: 14px; min-width: 0; }
+.h { font-family: var(--f-display); font-weight: 800; font-size: 24px; letter-spacing: -.02em; margin: 0; text-wrap: balance; line-height: 1.1; }
+.h3 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0; }
+.sub { margin: -8px 0 0; color: var(--muted); font-size: 14px; }
+.label { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.stack { display: grid; gap: 8px; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+
+.modes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.mode { border: 1.5px solid var(--line); background: var(--surface); border-radius: 14px; padding: 10px 6px 8px; display: grid; justify-items: center; gap: 0; }
+.mode b { font-family: var(--f-display); font-size: 30px; font-weight: 800; line-height: 1; }
+.mode span { font-size: 11.5px; color: var(--muted); text-align: center; line-height: 1.2; }
+.mode[aria-pressed="true"] { background: var(--felt); border-color: var(--felt); color: var(--on-felt); }
+.mode[aria-pressed="true"] span { color: inherit; opacity: .85; }
+
+.teams { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.team-box { border-radius: 14px; background: var(--surface-2); padding: 10px; display: grid; gap: 6px; min-width: 0; }
+.team-box .slot { justify-content: space-between; background: var(--surface); }
+.team-box .slot:not(.filled) { justify-content: center; }
+.chips:has(> .pick) { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+.pick { justify-content: space-between; }
+.pick span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.team-B { background: color-mix(in srgb, var(--red) 10%, var(--surface-2)); }
+.team-B .slot.filled { border-color: var(--red); background: var(--surface); }
+.pick { display: inline-flex; align-items: center; border: 1.5px solid var(--line); border-radius: 999px; background: var(--surface); padding: 3px 3px 3px 14px; gap: 6px; font-weight: 600; }
+.pick button { border: 0; width: 36px; height: 36px; border-radius: 50%; font-family: var(--f-display); font-weight: 800; background: var(--felt-soft); color: var(--felt); }
+.pick button[data-t="B"] { background: color-mix(in srgb, var(--red) 14%, transparent); color: var(--red); }
+.pick button:disabled { opacity: .3; cursor: not-allowed; }
+.hint p { margin: 0; }
+.hint { display: grid; gap: 10px; justify-items: start; padding: 14px; border-radius: 14px; background: var(--felt-soft); }
+.linkish { border: 0; background: none; padding: 4px 0; color: var(--felt); font-weight: 700; text-align: left; text-decoration: underline; text-underline-offset: 3px; justify-self: start; }
+.step { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.step-n { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--felt); color: var(--on-felt); font-family: var(--f-display); font-size: 14px; flex: none; }
+.verdict { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.verdict button { border: 0; border-radius: 14px; min-height: 64px; font-family: var(--f-display); font-weight: 800; font-size: 19px; }
+.v-win { background: var(--win); color: #fff; }
+.v-lose { background: var(--loss); color: #fff; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fl { display: grid; gap: 4px; font-size: 13px; font-weight: 600; color: var(--muted); min-width: 0; }
+.fl .field { color: var(--ink); font-size: 16px; }
+.person-form { display: grid; gap: 12px; }
+.people { display: grid; gap: 2px; }
+.person { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.person:first-child { border-top: 0; }
+.person.editing { display: grid; gap: 10px; }
+.person .pn { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.avatar { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--felt-soft); color: var(--felt); font-family: var(--f-display); font-weight: 800; flex: none; }
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+.slot { min-height: 44px; border-radius: 12px; border: 1.5px dashed var(--line); background: transparent; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 10px; font-weight: 600; min-width: 0; }
+.slot.filled { border-style: solid; border-color: var(--felt); background: var(--felt-soft); }
+.slot .x { color: var(--muted); font-weight: 400; }
+.slot em { font-style: normal; color: var(--muted); font-weight: 500; font-size: 13px; }
+.slot-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 14px; font-weight: 600; min-height: 40px; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.scroller { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.scroller::-webkit-scrollbar { display: none; }
+.scroller .chip { flex: none; }
+
+.add { display: flex; gap: 8px; }
+.center { justify-content: center; text-align: center; }
+.field { flex: 1; min-width: 0; border: 1.5px solid var(--line); background: var(--surface); border-radius: 12px; padding: 10px 12px; min-height: 44px; font-size: 16px; }
+.field:focus { border-color: var(--felt); outline: none; }
+.btn { border: 1.5px solid var(--line); background: var(--surface); border-radius: 12px; padding: 10px 14px; font-weight: 700; min-height: 44px; }
+.btn.danger { color: var(--loss); }
+.btn.danger.armed { background: var(--loss); color: #fff; border-color: var(--loss); }
+.btn.soft { background: var(--surface-2); border-color: transparent; }
+.cta { border: 0; background: var(--felt); color: var(--on-felt); border-radius: 14px; padding: 14px 18px; font-weight: 800; font-size: 17px; min-height: 54px; width: 100%; font-family: var(--f-display); letter-spacing: .01em; }
+.cta:disabled { opacity: .4; cursor: not-allowed; }
+
+/* tabellone */
+.board { display: grid; gap: 10px; }
+.board.two { grid-template-columns: 1fr auto 1fr; align-items: stretch; }
+.board.three { grid-template-columns: repeat(3, 1fr); }
+.side { background: var(--surface-2); border-radius: 16px; padding: 12px; display: grid; gap: 2px; text-align: center; min-width: 0; }
+.side.lead { background: var(--felt); color: var(--on-felt); }
+.side .names { font-weight: 700; font-size: 14px; line-height: 1.25; overflow-wrap: anywhere; }
+.side .big { font-family: var(--f-display); font-weight: 800; font-size: 52px; line-height: 1; }
+.side .tot { font-size: 12px; opacity: .75; }
+.vs { align-self: center; font-family: var(--f-display); font-weight: 800; color: var(--muted); }
+.rank { display: grid; gap: 6px; }
+.rank-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); }
+.rank-row.lead { background: var(--felt); color: var(--on-felt); }
+.rank-row .pos { font-family: var(--f-display); font-weight: 800; opacity: .6; }
+.rank-row .sc { font-family: var(--f-display); font-weight: 800; font-size: 22px; }
+
+.entry { display: grid; gap: 10px; }
+.pts-row { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.pts-row .who { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.pts-in { width: 96px; flex: none; text-align: center; font-family: var(--f-display); font-weight: 800; font-size: 30px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface); padding: 4px 6px; }
+.pts-in:focus { border-color: var(--felt); outline: none; }
+input[type="range"] { width: 100%; accent-color: var(--felt); height: 28px; }
+.quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.quick button { border: 0; background: var(--surface-2); border-radius: 10px; min-height: 40px; font-weight: 700; }
+.preview { border-radius: 12px; padding: 10px 12px; background: var(--surface-2); font-size: 14px; }
+.preview b { font-weight: 800; }
+.preview.bad { color: var(--loss); }
+.auto { display: flex; justify-content: space-between; padding: 8px 12px; border-radius: 12px; border: 1.5px dashed var(--line); }
+
+.hands { display: grid; gap: 6px; }
+.hand { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.hand:first-child { border-top: 0; }
+.hand .n { font-family: var(--f-display); font-weight: 800; color: var(--muted); width: 34px; }
+.pill { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.pill.w { background: color-mix(in srgb, var(--win) 16%, transparent); color: var(--win); }
+.pill.l { background: color-mix(in srgb, var(--loss) 14%, transparent); color: var(--loss); }
+.pill.d { background: color-mix(in srgb, var(--draw) 18%, transparent); color: var(--draw); }
+.pill.on { background: var(--felt-soft); color: var(--felt); }
+.pill.m { background: var(--surface-2); color: var(--muted); }
+
+.ht { min-width: 0; overflow-wrap: anywhere; }
+.mini { border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 12px; font-size: 13px; font-weight: 700; min-height: 32px; }
+.edit-box { display: grid; gap: 8px; padding: 12px; border-radius: 12px; background: var(--felt-soft); }
+.who-won { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.who-won.three { grid-template-columns: 1fr; }
+.ww { border: 0; border-radius: 16px; min-height: 76px; padding: 12px; font-family: var(--f-display); font-weight: 800; font-size: 18px; line-height: 1.2; color: #fff; background: var(--felt); overflow-wrap: anywhere; }
+.ww.side-1 { background: var(--red); }
+.ww.side-2 { background: var(--gold); }
+.who-won.three .ww { min-height: 56px; }
+.side.side-1.lead { background: var(--red); color: #fff; }
+.rank-row .rn { display: grid; min-width: 0; overflow-wrap: anywhere; }
+.rank-row .rn .small { opacity: .7; }
+.sc small, .pc small { font-size: 13px; font-weight: 700; opacity: .7; }
+.verdict small { display: block; font-family: var(--f-body); font-weight: 600; font-size: 12.5px; opacity: .9; margin-top: 2px; }
+.hl-card.win { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 10%, var(--surface)); }
+.banner { border-radius: 16px; padding: 18px; background: var(--felt); color: var(--on-felt); display: grid; gap: 4px; text-align: center; }
+.banner .h { font-size: 26px; }
+
+/* giornate */
+.day { padding: 0; overflow: hidden; gap: 0; }
+.day-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 0; background: none; width: 100%; text-align: left; }
+.day-date { display: grid; place-items: center; width: 48px; height: 52px; border-radius: 10px; background: var(--felt); color: var(--on-felt); flex: none; line-height: 1; }
+.day-date b { font-family: var(--f-display); font-size: 22px; font-weight: 800; }
+.day-date span { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+.day-body { border-top: 1px solid var(--line); padding: 12px 16px 16px; display: grid; gap: 10px; }
+.match { border-radius: 12px; background: var(--surface-2); padding: 10px 12px; display: grid; gap: 6px; min-width: 0; }
+.match .btn.soft { background: var(--surface); }
+.match-line { font-weight: 600; overflow-wrap: anywhere; }
+
+/* statistiche */
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tile { background: var(--surface-2); border-radius: 14px; padding: 10px 12px; display: grid; gap: 0; }
+.tile b { font-family: var(--f-display); font-size: 28px; font-weight: 800; line-height: 1.1; }
+.tile span { font-size: 12px; color: var(--muted); }
+.hl { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+.hl-card { border-radius: 14px; padding: 12px 14px; border: 1.5px solid var(--line); display: grid; gap: 2px; min-width: 0; }
+.hl-card .k { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--gold); }
+.hl-card .v { font-family: var(--f-display); font-weight: 800; font-size: 19px; line-height: 1.2; overflow-wrap: anywhere; }
+.hl-card .d { font-size: 13px; color: var(--muted); }
+.st-list { display: grid; gap: 4px; }
+.st { display: grid; grid-template-columns: 26px 1fr auto; gap: 4px 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.st:first-child { border-top: 0; }
+.st .pos { font-family: var(--f-display); font-weight: 800; color: var(--muted); grid-row: span 3; align-self: start; padding-top: 1px; }
+.st .nm { font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
+.st .pc { font-family: var(--f-display); font-weight: 800; font-size: 20px; text-align: right; }
+.st .bar { grid-column: 2 / 4; height: 6px; border-radius: 4px; background: var(--surface-2); overflow: hidden; display: flex; }
+.st .bar i { display: block; height: 100%; }
+.st .meta { grid-column: 2 / 4; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.st .meta b { color: var(--ink); font-weight: 700; }
+
+.empty { text-align: center; padding: 26px 14px; display: grid; gap: 10px; justify-items: center; }
+.empty svg { width: 76px; height: 76px; }
+
+.howto { display: grid; gap: 8px; font-size: 14px; }
+.howto p { margin: 0; }
+
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+.nav-in { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); }
+.tab { border: 0; background: none; display: grid; justify-items: center; gap: 2px; padding: 8px 4px 9px; font-size: 11.5px; font-weight: 600; color: var(--muted); }
+.tab svg { width: 24px; height: 24px; }
+.tab[aria-current="page"] { color: var(--felt); }
+
+.toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-weight: 600; font-size: 14px; transition: .2s; pointer-events: none; z-index: 20; max-width: calc(100% - 32px); text-align: center; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 420px) {
+  .mode span { font-size: 10.5px; }
+  .side .big { font-size: 44px; }
+  .tiles .tile b { font-size: 24px; }
+}
+@media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand" aria-label="Galverna Cards">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <g transform="rotate(-20 32 58)"><rect x="19" y="8" width="26" height="40" rx="4.5" fill="var(--felt)"/><rect x="22.5" y="11.5" width="19" height="33" rx="2.5" fill="none" stroke="var(--on-felt)" stroke-opacity=".5" stroke-width="1.4"/><path d="M32 20 l5 8 -5 8 -5 -8z" fill="var(--on-felt)" fill-opacity=".55"/></g>
+        <g transform="rotate(2 32 58)"><rect x="19" y="8" width="26" height="40" rx="4.5" fill="var(--red)"/><path d="M27 19 h10 c0 6 -2.5 9 -5 9.5 c-2.5 -.5 -5 -3.5 -5 -9.5z M32 28.5 v6 M28.5 35.5 h7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <g transform="rotate(22 32 58)"><rect x="19" y="8" width="26" height="40" rx="4.5" fill="#fffdf8" stroke="var(--ink)" stroke-opacity=".15"/><circle cx="32" cy="27" r="7.5" fill="var(--gold)"/><circle cx="32" cy="27" r="4.3" fill="none" stroke="#fffdf8" stroke-width="1.6"/><circle cx="32" cy="27" r="1.4" fill="#fffdf8"/></g>
+      </svg>
+      <span class="word"><span class="x">Galverna</span><b>Cards</b></span>
+    </div>
+    <div class="top-day" id="topDay"></div>
+  </div>
+</header>
+
+<main class="wrap" id="view"></main>
+
+<nav class="nav" aria-label="Sezioni">
+  <div class="nav-in">
+    <button class="tab" data-act="tab" data-tab="gioca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="5" width="10" height="15" rx="2" transform="rotate(-10 9 12)"/><rect x="10" y="4" width="10" height="15" rx="2" transform="rotate(8 15 11)"/></svg>Gioca</button>
+    <button class="tab" data-act="tab" data-tab="giornate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Giornate</button>
+    <button class="tab" data-act="tab" data-tab="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 20V12M12 20V5M19 20v-6"/></svg>Statistiche</button>
+    <button class="tab" data-act="tab" data-tab="giocatori"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8.5" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M17 14.2c2.4.2 4 1.8 4.5 4.3"/></svg>Anagrafica</button>
+  </div>
+</nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  var KEY = 'cards.briscola.v1';
+  var MODES = {
+    2: { name: 'a 2', cap: 'Testa a testa' },
+    3: { name: 'a 3', cap: 'Tutti contro tutti' },
+    4: { name: 'a 4', cap: 'Due coppie' },
+    5: { name: 'a 5', cap: 'Chiamata' }
+  };
+
+  function $(s) { return document.querySelector(s); }
+  function uid() { return Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-5); }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function dayKey(d) { d = d || new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function parseDay(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function fmtDay(k, opts) { return parseDay(k).toLocaleDateString('it-IT', opts || { weekday: 'long', day: 'numeric', month: 'long' }); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function clamp(v, a, b) { v = Math.round(+v || 0); return Math.max(a, Math.min(b, v)); }
+  function pct(a, b) { return b ? Math.round(a / b * 100) : 0; }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+
+  // ---------- dati ----------
+  // Un "tavolo" è una seduta con gli stessi giocatori; ogni partita giocata al tavolo vale punti in classifica.
+  function blank() { return { players: [], matches: [], activeId: null }; }
+  function valid(d) { return !!d && Array.isArray(d.players) && Array.isArray(d.matches); }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) { var d = JSON.parse(raw); if (valid(d)) return d; }
+    } catch (e) {}
+    return blank();
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(db)); }
+    catch (e) { toast('Non riesco a salvare su questo dispositivo'); }
+  }
+  function migrate() {
+    // I giocatori salvati prima dell'anagrafica avevano solo "name"
+    db.players.forEach(function (p) {
+      if (p.nome == null) { var parts = String(p.name || '').split(' '); p.nome = parts.shift() || '?'; p.cognome = parts.join(' '); }
+    });
+  }
+  var db = load();
+  migrate();
+
+  function player(id) { for (var i = 0; i < db.players.length; i++) if (db.players[i].id === id) return db.players[i]; return null; }
+  function fullName(p) { return ((p.nome || '') + ' ' + (p.cognome || '')).trim(); }
+  function initials(p) { return ((p.nome || '?').charAt(0) + (p.cognome || '').charAt(0)).toUpperCase(); }
+  function sortedPlayers() { return db.players.slice().sort(function (a, b) { return fullName(a).localeCompare(fullName(b), 'it'); }); }
+  function pname(id) { var p = player(id); return p ? fullName(p) : '?'; }
+  function tname(ids) { return ids.map(pname).join(' & '); }
+  function match(id) { for (var i = 0; i < db.matches.length; i++) if (db.matches[i].id === id) return db.matches[i]; return null; }
+  function active() { var m = db.activeId && match(db.activeId); return m && !m.closed ? m : null; }
+
+  // ---------- regole e punteggio ----------
+  // Ogni partita vale 1 punto a chi la vince: a 2 e a 3 al vincitore, a 4 a entrambi i compagni della coppia vincente.
+  // A 5 chi vince l'asta chiama una carta e gioca con chi ce l'ha: se fanno i punti chiamati prendono 1 punto a testa,
+  // altrimenti 1 punto va a ognuno degli altri tre. Facoltativo: i punti carta (120 in tutto) per le statistiche.
+  function sidesOf(m, h) {
+    var p = m.players;
+    if (m.mode === 2) return [[p[0]], [p[1]]];
+    if (m.mode === 3) return [[p[0]], [p[1]], [p[2]]];
+    if (m.mode === 4) return [[p[0], p[1]], [p[2], p[3]]];
+    var team = h.caller === h.partner ? [h.caller] : [h.caller, h.partner];
+    return [team, p.filter(function (x) { return team.indexOf(x) < 0; })];
+  }
+  function outFromPts(m, pts, bid) {
+    if (m.mode === 5) return pts[0] >= (bid || 61) ? ['W', 'L'] : ['L', 'W'];
+    if (m.mode === 3) {
+      var mx = Math.max.apply(null, pts), top = pts.filter(function (v) { return v === mx; }).length;
+      return pts.map(function (v) { return v === mx ? (top > 1 ? 'D' : 'W') : 'L'; });
+    }
+    return pts[0] > 60 ? ['W', 'L'] : pts[0] < 60 ? ['L', 'W'] : ['D', 'D'];
+  }
+  function handResult(m, h) {
+    var sides = sidesOf(m, h), pts = h.pts || null, out;
+    if (m.mode === 5) {
+      var made = h.won != null ? h.won : !!(pts && pts[0] >= (h.bid || 61));
+      out = made ? ['W', 'L'] : ['L', 'W'];
+    } else if (h.winner != null) {
+      out = sides.map(function (s, i) { return h.winner < 0 ? 'D' : i === h.winner ? 'W' : 'L'; });
+    } else {
+      out = outFromPts(m, pts);
+    }
+    var per = [];
+    sides.forEach(function (s, i) {
+      s.forEach(function (pid) { per.push({ pid: pid, side: i, pts: pts ? pts[i] : null, out: out[i], score: out[i] === 'W' ? 1 : 0 }); });
+    });
+    return { sides: sides, out: out, per: per };
+  }
+  function scoreOf(matches) {
+    var sc = {}, played = {};
+    matches.forEach(function (m) {
+      m.hands.forEach(function (h) {
+        handResult(m, h).per.forEach(function (r) { sc[r.pid] = (sc[r.pid] || 0) + r.score; played[r.pid] = (played[r.pid] || 0) + 1; });
+      });
+    });
+    return { sc: sc, played: played };
+  }
+  function dayMatches(d) { return db.matches.filter(function (m) { return m.date === d && m.hands.length; }); }
+  function ranking(matches) {
+    var s = scoreOf(matches);
+    return Object.keys(s.played).map(function (id) { return { id: id, pts: s.sc[id] || 0, played: s.played[id] }; })
+      .sort(function (a, b) { return b.pts - a.pts || (b.pts / b.played) - (a.pts / a.played) || pname(a.id).localeCompare(pname(b.id), 'it'); });
+  }
+
+  // ---------- stato interfaccia ----------
+  function freshEntry() { return { a: 60, b: 40, caller: null, partner: null, bid: 61, withPts: false }; }
+  var ui = {
+    tab: 'gioca',
+    setup: { mode: 4, slots: [null, null, null, null] },
+    entry: freshEntry(),
+    statsDate: null, statsMode: 'all',
+    openDay: dayKey(), editHand: null, editPlayer: null, armed: null
+  };
+  if (db.lastSetup) { ui.setup = { mode: db.lastSetup.mode, slots: (db.lastSetup.slots || []).slice() }; }
+
+  // Conferma a due tocchi: il secondo tocco entro 4 secondi esegue
+  function arm(key) {
+    if (ui.armed === key) { ui.armed = null; return true; }
+    ui.armed = key; render();
+    setTimeout(function () { if (ui.armed === key) { ui.armed = null; render(); } }, 4000);
+    return false;
+  }
+
+  // ---------- viste ----------
+  function render() {
+    document.querySelectorAll('.tab').forEach(function (b) { b.setAttribute('aria-current', b.dataset.tab === ui.tab ? 'page' : 'false'); });
+    $('#topDay').innerHTML = 'Giornata<br><b>' + esc(fmtDay(dayKey(), { day: 'numeric', month: 'long' })) + '</b>';
+    var views = { gioca: viewGioca, giornate: viewGiornate, stats: viewStats, giocatori: viewGiocatori };
+    $('#view').innerHTML = views[ui.tab]();
+    if (ui.tab === 'gioca') updatePreview();
+  }
+
+  function viewGioca() {
+    var m = active();
+    var h = m ? viewTable(m) : viewSetup();
+    var r = ranking(dayMatches(dayKey()));
+    if (r.length) h += '<section class="panel"><div class="row" style="justify-content:space-between"><h2 class="h3">Classifica di oggi</h2><button class="linkish" data-act="dayStats" data-v="' + dayKey() + '">Statistiche</button></div>' + rankingHtml(r) + '</section>';
+    return h;
+  }
+
+  function rankingHtml(r, limit) {
+    var top = r.length ? r[0].pts : 0, h = '<div class="rank">';
+    r.slice(0, limit || r.length).forEach(function (x, i) {
+      var lead = top > 0 && x.pts === top;
+      h += '<div class="rank-row' + (lead ? ' lead' : '') + '"><span class="pos num">' + (i + 1) + '</span><span class="rn"><b>' + esc(pname(x.id)) + '</b><span class="small">' + plural(x.played, 'partita', 'partite') + '</span></span><span class="sc num">' + x.pts + '<small> pt</small></span></div>';
+    });
+    return h + '</div>';
+  }
+
+  function slotHtml(i) {
+    var id = ui.setup.slots[i];
+    if (id) return '<button class="slot filled" data-act="unslot" data-i="' + i + '"><span class="slot-name">' + esc(pname(id)) + '</span><span class="x" aria-label="togli">×</span></button>';
+    return '<div class="slot"><em>' + (ui.setup.mode === 4 ? 'Posto libero' : 'Giocatore ' + (i + 1)) + '</em></div>';
+  }
+
+  function viewSetup() {
+    var s = ui.setup, n = s.mode;
+    var h = '<section class="panel"><h1 class="h">Chi gioca?</h1><p class="sub">Scegli la modalità e chi è al tavolo.</p>';
+    h += '<div class="label">Modalità</div><div class="modes">';
+    [2, 3, 4, 5].forEach(function (k) {
+      h += '<button class="mode" data-act="mode" data-v="' + k + '" aria-pressed="' + (n === k) + '"><b>' + k + '</b><span>' + MODES[k].cap + '</span></button>';
+    });
+    h += '</div><div class="label">Al tavolo</div>';
+    var roster = sortedPlayers();
+    if (!roster.length) {
+      h += '<div class="hint"><p>I giocatori si registrano nell\'<b>Anagrafica</b>, con nome e cognome. Poi qui li scegli con un tocco.</p><button class="btn" data-act="tab" data-tab="giocatori">Vai all\'anagrafica</button></div>';
+    } else if (n === 4) {
+      h += '<div class="teams">';
+      ['A', 'B'].forEach(function (t) {
+        var base = t === 'A' ? 0 : 2;
+        h += '<div class="team-box team-' + t + '"><div class="label">Squadra ' + t + '</div>' + slotHtml(base) + slotHtml(base + 1) + '</div>';
+      });
+      h += '</div>';
+      var free = roster.filter(function (p) { return s.slots.indexOf(p.id) < 0; });
+      if (free.length) {
+        h += '<div class="small muted center">Tocca <b>A</b> o <b>B</b> accanto a un nome:</div><div class="chips">';
+        free.forEach(function (p) {
+          h += '<div class="pick"><span>' + esc(fullName(p)) + '</span><button data-act="toTeam" data-id="' + p.id + '" data-t="A"' + (s.slots[0] && s.slots[1] ? ' disabled' : '') + ' aria-label="Squadra A">A</button><button data-act="toTeam" data-id="' + p.id + '" data-t="B"' + (s.slots[2] && s.slots[3] ? ' disabled' : '') + ' aria-label="Squadra B">B</button></div>';
+        });
+        h += '</div>';
+      }
+      if (s.slots.every(Boolean)) h += '<div class="row"><button class="btn soft" data-act="shuffle">Squadre a caso</button><button class="btn soft" data-act="swap">Scambia due giocatori</button></div>';
+    } else {
+      h += '<div class="slots">';
+      for (var i = 0; i < n; i++) h += slotHtml(i);
+      h += '</div><div class="small muted center">Tocca un nome per metterlo al tavolo.</div><div class="chips center">';
+      roster.forEach(function (p) {
+        h += '<button class="chip" data-act="pick" data-id="' + p.id + '" aria-pressed="' + (s.slots.indexOf(p.id) >= 0) + '">' + esc(fullName(p)) + '</button>';
+      });
+      h += '</div>';
+    }
+    h += '<div class="small muted">' + ruleText(n) + '</div>';
+    var full = s.slots.length === n && s.slots.every(Boolean);
+    h += '<button class="cta" data-act="start"' + (full ? '' : ' disabled') + '>' + (full ? 'Inizia a giocare' : 'Scegli ' + n + ' giocatori') + '</button></section>';
+    var recent = dayMatches(dayKey()).slice(-2).reverse();
+    if (recent.length) {
+      h += '<section class="panel"><h2 class="h3">Tavoli di oggi</h2>';
+      recent.forEach(function (m) { h += '<div class="match"><div class="match-line">' + esc(tableTitle(m)) + '</div><div class="row"><span class="pill on">' + MODES[m.mode].name + '</span><span class="small muted">' + plural(m.hands.length, 'partita', 'partite') + '</span><button class="btn soft" style="margin-left:auto" data-act="resume" data-id="' + m.id + '">Riprendi</button></div></div>'; });
+      h += '</section>';
+    }
+    return h;
+  }
+
+  function ruleText(n) {
+    if (n === 4) return 'Ogni partita vinta dà 1 punto a entrambi i giocatori della coppia.';
+    if (n === 5) return 'Chi vince l\'asta chiama una carta e gioca con chi ce l\'ha. Se fanno i punti chiamati: 1 punto a testa. Se no: 1 punto a ognuno degli altri tre.';
+    return 'Ogni partita vinta dà 1 punto in classifica.';
+  }
+
+  function tableTitle(m) {
+    if (m.mode === 4) return tname(m.players.slice(0, 2)) + ' contro ' + tname(m.players.slice(2));
+    return m.players.map(pname).join(', ');
+  }
+
+  function boardHtml(m) {
+    var s = scoreOf([m]).sc, h;
+    if (m.mode === 2 || m.mode === 4) {
+      var sides = sidesOf(m), v = sides.map(function (x) { return s[x[0]] || 0; });
+      var cell = function (i) {
+        var lead = v[i] > v[1 - i];
+        return '<div class="side side-' + i + (lead ? ' lead' : '') + '"><div class="names">' + esc(tname(sides[i])) + '</div><div class="big num">' + v[i] + '</div><div class="tot">' + (v[i] === 1 ? 'punto' : 'punti') + '</div></div>';
+      };
+      return '<div class="board two">' + cell(0) + '<div class="vs">vs</div>' + cell(1) + '</div>';
+    }
+    var r = m.players.map(function (p) { return { id: p, pts: s[p] || 0, played: m.hands.length }; }).sort(function (a, b) { return b.pts - a.pts; });
+    h = '<div class="rank">';
+    r.forEach(function (x, i) {
+      var lead = x.pts > 0 && x.pts === r[0].pts;
+      h += '<div class="rank-row' + (lead ? ' lead' : '') + '"><span class="pos num">' + (i + 1) + '</span><span class="rn"><b>' + esc(pname(x.id)) + '</b></span><span class="sc num">' + x.pts + '<small> pt</small></span></div>';
+    });
+    return h + '</div>';
+  }
+
+  function ptsBlock(key, who, val) {
+    return '<div class="pts-row"><span class="who">Punti carta di <b>' + esc(who) + '</b></span><input class="pts-in num" id="in-' + key + '" type="number" inputmode="numeric" min="0" max="120" value="' + val + '" aria-label="Punti di ' + esc(who) + '"></div>' +
+      '<input type="range" id="rg-' + key + '" min="0" max="120" value="' + val + '" aria-label="Regola i punti di ' + esc(who) + '">' +
+      '<div class="quick"><button data-act="bump" data-k="' + key + '" data-d="-10">−10</button><button data-act="bump" data-k="' + key + '" data-d="-1">−1</button><button data-act="bump" data-k="' + key + '" data-d="1">+1</button><button data-act="bump" data-k="' + key + '" data-d="10">+10</button></div>';
+  }
+
+  function entryHtml(m) {
+    var e = ui.entry, h = '<div class="entry"><div class="label">Partita ' + (m.hands.length + 1) + '</div>';
+    if (m.mode === 5) return h + entryFive(m) + '</div>';
+    var sides = sidesOf(m);
+    if (!e.withPts) {
+      h += '<div class="step"><span>Chi ha vinto?</span></div><div class="who-won' + (m.mode === 3 ? ' three' : '') + '">';
+      sides.forEach(function (s, i) { h += '<button class="ww side-' + i + '" data-act="saveWin" data-v="' + i + '">' + esc(tname(s)) + '</button>'; });
+      h += '</div><div class="row center">' + (m.mode !== 3 ? '<button class="linkish" data-act="saveWin" data-v="-1">Pari, 60 a 60</button>' : '') +
+        '<button class="linkish" data-act="withPts">Segna i punti carta</button></div>';
+      return h + '</div>';
+    }
+    if (m.mode === 3) {
+      h += ptsBlock('a', pname(m.players[0]), e.a) + ptsBlock('b', pname(m.players[1]), e.b);
+      h += '<div class="auto"><span>Punti carta di <b>' + esc(pname(m.players[2])) + '</b></span><b class="num" id="autoC"></b></div>';
+    } else {
+      h += ptsBlock('a', tname(sides[0]), e.a);
+    }
+    return h + '<div class="preview" id="preview"></div><button class="cta" id="saveHand" data-act="saveHand">Segna la partita</button><button class="linkish" data-act="withPts">Indica solo chi ha vinto</button></div>';
+  }
+
+  // Chiamata a 5, un passo alla volta: chi vince l'asta, a quanto, chi ha la carta, fatto o non fatto
+  function entryFive(m) {
+    var e = ui.entry, h = '<div class="step"><span class="step-n">1</span><span>Chi ha vinto l\'asta?</span></div><div class="chips">';
+    m.players.forEach(function (p) { h += '<button class="chip" data-act="caller" data-id="' + p + '" aria-pressed="' + (e.caller === p) + '">' + esc(pname(p)) + '</button>'; });
+    h += '</div>';
+    if (!e.caller) return h;
+    h += '<div class="step"><span class="step-n">2</span><span>A quanto ha chiamato?</span></div>';
+    h += '<div class="pts-row"><div class="chips">';
+    [61, 70, 80, 90, 100].forEach(function (v) { h += '<button class="chip" data-act="bid" data-v="' + v + '" aria-pressed="' + (e.bid === v) + '">' + v + '</button>'; });
+    h += '</div><input class="pts-in num" id="in-bid" type="number" inputmode="numeric" min="61" max="120" value="' + e.bid + '" aria-label="Punti chiamati"></div>';
+    h += '<div class="step"><span class="step-n">3</span><span>Chi aveva la carta chiamata?</span></div><div class="chips">';
+    m.players.forEach(function (p) { if (p !== e.caller) h += '<button class="chip" data-act="partner" data-id="' + p + '" aria-pressed="' + (e.partner === p) + '">' + esc(pname(p)) + '</button>'; });
+    h += '<button class="chip" data-act="partner" data-id="solo" aria-pressed="' + (e.partner === 'solo') + '">Era sua: gioca da solo</button></div>';
+    if (!e.partner) return h;
+    var team = e.partner === 'solo' ? [e.caller] : [e.caller, e.partner];
+    var others = m.players.filter(function (p) { return team.indexOf(p) < 0; });
+    h += '<div class="step"><span class="step-n">4</span><span>' + esc(tname(team)) + ' ' + (team.length > 1 ? 'hanno' : 'ha') + ' fatto <b class="num">' + e.bid + '</b>?</span></div>';
+    if (!e.withPts) {
+      h += '<div class="verdict"><button class="v-win" data-act="saveFive" data-v="1">Sì, fatto<small>1 punto a ' + esc(tname(team)) + '</small></button><button class="v-lose" data-act="saveFive" data-v="0">No, non fatto<small>1 punto a ' + esc(others.map(function (p) { return (player(p) || {}).nome || '?'; }).join(', ')) + '</small></button></div>';
+      return h + '<button class="linkish" data-act="withPts">Segna i punti carta</button>';
+    }
+    h += ptsBlock('a', tname(team), e.a);
+    h += '<div class="preview" id="preview"></div><button class="cta" id="saveHand" data-act="saveHand">Segna la partita</button>';
+    return h + '<button class="linkish" data-act="withPts">Indica solo fatto o non fatto</button>';
+  }
+
+  function entryPts(m) {
+    var e = ui.entry;
+    if (m.mode === 3) return [e.a, e.b, 120 - e.a - e.b];
+    return [e.a, 120 - e.a];
+  }
+
+  function updatePreview() {
+    var m = active(), pv = $('#preview'), btn = $('#saveHand');
+    if (!m || !pv) return;
+    var pts = entryPts(m), e = ui.entry, ok = true, msg = '';
+    if (m.mode === 3) {
+      var c = $('#autoC'); if (c) c.textContent = pts[2] < 0 ? '—' : pts[2];
+      if (pts[2] < 0) { ok = false; msg = 'La somma supera 120: controlla i punti.'; }
+    }
+    if (ok) {
+      var r = handResult(m, { pts: pts, bid: e.bid, caller: e.caller, partner: e.partner === 'solo' ? e.caller : e.partner });
+      var wi = r.out.indexOf('W');
+      msg = r.sides.map(function (s, i) { return esc(tname(s)) + ' <b class="num">' + pts[i] + '</b>'; }).join(' · ') +
+        '<br>' + (wi < 0 ? '<b>Pari</b>: nessun punto' : (m.mode === 5 ? (wi === 0 ? 'Fatto: ' : 'Non fatto: ') : '') + '1 punto a <b>' + esc(tname(r.sides[wi])) + '</b>');
+    }
+    pv.className = 'preview' + (ok ? '' : ' bad');
+    pv.innerHTML = msg;
+    btn.disabled = !ok;
+  }
+
+  // Riga di una partita, con correzione sul posto
+  function handLine(m, h, i) {
+    var r = handResult(m, h), wi = r.out.indexOf('W'), key = m.id + ':' + i, txt;
+    if (m.mode === 5) {
+      var made = r.out[0] === 'W';
+      txt = '<b>' + esc(pname(h.caller)) + '</b> chiama a <b class="num">' + (h.bid || 61) + '</b>' +
+        (h.caller === h.partner ? ' da solo' : ' con <b>' + esc(pname(h.partner)) + '</b>') +
+        ' <span class="pill ' + (made ? 'w' : 'l') + '">' + (made ? 'fatto' : 'non fatto') + '</span>' + (h.pts ? ' <span class="small muted num">' + h.pts[0] + ' punti carta</span>' : '');
+    } else {
+      txt = wi < 0 ? '<span class="pill d">pari</span>' : 'Vince <b>' + esc(tname(r.sides[wi])) + '</b>';
+      if (h.pts) txt += ' <span class="small muted num">' + h.pts.join(' – ') + '</span>';
+    }
+    var row = '<div class="hand"><span class="n num">' + (i + 1) + '</span><div class="ht">' + txt + '</div><button class="mini" data-act="editHand" data-v="' + (ui.editHand === key ? '' : key) + '">' + (ui.editHand === key ? 'Chiudi' : 'Modifica') + '</button></div>';
+    if (ui.editHand !== key) return row;
+    var ed = '<div class="edit-box"><div class="small muted">Correggi il risultato della partita ' + (i + 1) + ':</div><div class="chips">';
+    if (m.mode === 5) {
+      ed += '<button class="chip" data-act="setWon" data-v="1" aria-pressed="' + (r.out[0] === 'W') + '">Fatto</button><button class="chip" data-act="setWon" data-v="0" aria-pressed="' + (r.out[0] === 'L') + '">Non fatto</button>';
+    } else {
+      sidesOf(m).forEach(function (s, k) { ed += '<button class="chip" data-act="setWinner" data-v="' + k + '" aria-pressed="' + (wi === k) + '">Vince ' + esc(tname(s)) + '</button>'; });
+      if (m.mode !== 3) ed += '<button class="chip" data-act="setWinner" data-v="-1" aria-pressed="' + (wi < 0) + '">Pari</button>';
+    }
+    var armed = ui.armed === 'h:' + key;
+    ed += '</div><div class="row"><button class="btn danger' + (armed ? ' armed' : '') + '" data-act="delHand">' + (armed ? 'Tocca ancora per eliminarla' : 'Elimina questa partita') + '</button></div></div>';
+    return row + ed;
+  }
+
+  function handsHtml(m) {
+    var h = '<div class="hands">';
+    for (var i = m.hands.length - 1; i >= 0; i--) h += handLine(m, m.hands[i], i);
+    return h + '</div>';
+  }
+
+  function viewTable(m) {
+    var h = '<section class="panel"><div class="row"><span class="pill on">Briscola ' + MODES[m.mode].name + '</span><span class="small muted">' + plural(m.hands.length, 'partita giocata', 'partite giocate') + '</span></div>';
+    h += boardHtml(m) + entryHtml(m) + '</section>';
+    if (m.hands.length) {
+      h += '<section class="panel"><h2 class="h3">Partite a questo tavolo</h2>' + handsHtml(m) +
+        '<div class="row"><button class="btn" data-act="undo">Annulla l\'ultima</button><button class="btn soft" data-act="endTable">Cambia giocatori</button></div></section>';
+    } else {
+      h += '<button class="btn soft" data-act="endTable">Cambia giocatori</button>';
+    }
+    return h;
+  }
+
+  function playedDays() {
+    var set = {};
+    db.matches.forEach(function (m) { if (m.hands.length) set[m.date] = 1; });
+    return Object.keys(set).sort().reverse();
+  }
+
+  function emptyArt() {
+    return '<svg viewBox="0 0 64 64" aria-hidden="true"><g transform="rotate(-14 32 58)"><rect x="19" y="8" width="26" height="40" rx="4.5" fill="var(--surface-2)" stroke="var(--line)"/></g><g transform="rotate(12 32 58)"><rect x="19" y="8" width="26" height="40" rx="4.5" fill="var(--surface)" stroke="var(--line)"/><circle cx="32" cy="27" r="6" fill="none" stroke="var(--gold)" stroke-width="2"/></g></svg>';
+  }
+
+  function viewGiornate() {
+    var days = playedDays();
+    if (!days.length) return '<section class="panel empty">' + emptyArt() + '<h1 class="h">Ancora nessuna giornata</h1><p class="muted" style="margin:0">Ogni giorno in cui segnate almeno una partita diventa una giornata, con la sua classifica.</p><button class="cta" style="max-width:280px" data-act="tab" data-tab="gioca">Inizia a giocare</button></section>';
+    var h = '<h1 class="h">Giornate</h1>';
+    days.forEach(function (d) {
+      var ms = dayMatches(d), n = ms.reduce(function (a, m) { return a + m.hands.length; }, 0);
+      var r = ranking(ms), dt = parseDay(d), open = ui.openDay === d;
+      var leaders = r.filter(function (x) { return r[0].pts > 0 && x.pts === r[0].pts; });
+      h += '<section class="panel day"><button class="day-head" data-act="toggleDay" data-v="' + d + '" aria-expanded="' + open + '"><span class="day-date"><b class="num">' + dt.getDate() + '</b><span>' + esc(dt.toLocaleDateString('it-IT', { month: 'short' }).replace('.', '')) + '</span></span><span style="flex:1;min-width:0"><b style="text-transform:capitalize">' + (d === dayKey() ? 'Oggi' : esc(fmtDay(d, { weekday: 'long' }))) + '</b><br><span class="small muted">' + plural(n, 'partita', 'partite') + (leaders.length ? ' · ' + (d === dayKey() ? 'in testa ' : 'vince ') + esc(leaders.map(function (x) { return pname(x.id); }).join(', ')) : '') + '</span></span><span class="muted" aria-hidden="true">' + (open ? '▾' : '▸') + '</span></button>';
+      if (open) {
+        h += '<div class="day-body"><div class="label">Classifica della giornata</div>' + rankingHtml(r) +
+          '<button class="btn soft" data-act="dayStats" data-v="' + d + '">Statistiche della giornata</button><div class="label">Partite</div>';
+        ms.slice().reverse().forEach(function (m) {
+          var armed = ui.armed === 'm:' + m.id;
+          h += '<div class="match"><div class="row" style="justify-content:space-between"><span class="pill on">' + MODES[m.mode].name + '</span><span class="small muted">' + plural(m.hands.length, 'partita', 'partite') + '</span></div><div class="match-line">' + esc(tableTitle(m)) + '</div>' + handsHtml(m) +
+            '<div class="row">' + (d === dayKey() ? '<button class="btn soft" data-act="resume" data-id="' + m.id + '">Continua a giocare</button>' : '') +
+            '<button class="btn danger' + (armed ? ' armed' : '') + '" data-act="delMatch" data-id="' + m.id + '">' + (armed ? 'Tocca ancora per eliminare tutto il tavolo' : 'Elimina tavolo') + '</button></div></div>';
+        });
+        h += '</div>';
+      }
+      h += '</section>';
+    });
+    return h;
+  }
+
+  function computeStats(date, mode) {
+    var P = {}, T = {}, rec = null, nMani = 0;
+    function ps(id) { return P[id] || (P[id] = { id: id, mani: 0, W: 0, L: 0, D: 0, score: 0, punti: 0, np: 0, best: 0, ch: 0, chW: 0, bids: 0 }); }
+    function ts(m, ids) {
+      var s = ids.slice().sort(), k = m.mode + ':' + s.join('|');
+      return T[k] || (T[k] = { key: k, mode: m.mode, ids: s, mani: 0, W: 0, L: 0, D: 0, score: 0, punti: 0, np: 0 });
+    }
+    db.matches.forEach(function (m) {
+      if (!m.hands.length) return;
+      if (date && m.date !== date) return;
+      if (mode !== 'all' && m.mode !== +mode) return;
+      m.hands.forEach(function (h) {
+        nMani++;
+        var r = handResult(m, h);
+        r.per.forEach(function (x) {
+          var s = ps(x.pid); s.mani++; s[x.out]++; s.score += x.score;
+          if (x.pts !== null) { s.punti += x.pts; s.np++; s.best = Math.max(s.best, x.pts); }
+        });
+        if (m.mode === 5) { var c = ps(h.caller); c.ch++; c.bids += h.bid || 61; if (r.out[0] === 'W') c.chW++; }
+        var teamSides = m.mode === 4 ? [0, 1] : (m.mode === 5 && r.sides[0].length === 2 ? [0] : []);
+        teamSides.forEach(function (i) { var t = ts(m, r.sides[i]); t.mani++; t[r.out[i]]++; if (r.out[i] === 'W') t.score++; if (h.pts) { t.punti += h.pts[i]; t.np++; } });
+        if (h.pts) r.sides.forEach(function (s, i) { if (!rec || h.pts[i] > rec.pts) rec = { pts: h.pts[i], ids: s }; });
+      });
+    });
+    var byScore = function (a, b) { return b.score - a.score || (b.W / b.mani) - (a.W / a.mani) || b.mani - a.mani; };
+    var byRate = function (a, b) { return (b.W / b.mani) - (a.W / a.mani) || b.W - a.W; };
+    return {
+      players: Object.keys(P).map(function (k) { return P[k]; }).sort(byScore),
+      teams: Object.keys(T).map(function (k) { return T[k]; }).sort(byRate),
+      rec: rec, nMani: nMani
+    };
+  }
+
+  function statRow(i, name, s, extra, big) {
+    var w = pct(s.W, s.mani), d = pct(s.D, s.mani);
+    return '<div class="st"><span class="pos num">' + (i + 1) + '</span><span class="nm">' + name + '</span><span class="pc num">' + big + '</span>' +
+      '<div class="bar" aria-hidden="true"><i style="width:' + w + '%;background:var(--win)"></i><i style="width:' + d + '%;background:var(--draw)"></i><i style="flex:1;background:color-mix(in srgb,var(--loss) 45%,transparent)"></i></div>' +
+      '<div class="meta"><span><b class="num">' + s.mani + '</b> giocate</span><span class="num">' + s.W + ' vinte · ' + s.L + ' perse' + (s.D ? ' · ' + s.D + ' pari' : '') + '</span><span><b class="num">' + w + '%</b> vinte</span>' +
+      (s.np ? '<span>media <b class="num">' + Math.round(s.punti / s.np) + '</b> punti carta</span>' : '') + (extra || '') + '</div></div>';
+  }
+
+  function viewStats() {
+    var days = playedDays();
+    if (!days.length) {
+      return '<section class="panel empty">' + emptyArt() + '<h1 class="h">Qui arrivano le statistiche</h1><p class="muted" style="margin:0">Classifica della giornata, partite vinte, coppie migliori e chiamate fatte, giorno per giorno.</p><button class="cta" style="max-width:280px" data-act="tab" data-tab="gioca">Inizia a giocare</button></section>';
+    }
+    if (ui.statsDate === null || (ui.statsDate && days.indexOf(ui.statsDate) < 0)) ui.statsDate = days.indexOf(dayKey()) >= 0 ? dayKey() : days[0];
+    var d = ui.statsDate, st = computeStats(d || null, ui.statsMode);
+    var h = '<h1 class="h">Statistiche</h1><div class="scroller" role="group" aria-label="Giornata">';
+    days.forEach(function (k) { h += '<button class="chip" data-act="statsDay" data-v="' + k + '" aria-pressed="' + (d === k) + '">' + (k === dayKey() ? 'Oggi' : esc(fmtDay(k, { day: 'numeric', month: 'short' }))) + '</button>'; });
+    h += '<button class="chip" data-act="statsDay" data-v="" aria-pressed="' + (d === '') + '">Sempre</button></div>';
+    h += '<div class="chips" role="group" aria-label="Modalità"><button class="chip" data-act="statsMode" data-v="all" aria-pressed="' + (ui.statsMode === 'all') + '">Tutte</button>';
+    [2, 3, 4, 5].forEach(function (k) { h += '<button class="chip" data-act="statsMode" data-v="' + k + '" aria-pressed="' + (ui.statsMode === String(k)) + '">' + MODES[k].name + '</button>'; });
+    h += '</div><section class="panel"><h2 class="h3" style="text-transform:capitalize">' + (d ? esc(fmtDay(d)) : 'Tutte le giornate') + '</h2>';
+    if (!st.nMani) return h + '<p class="muted" style="margin:0">Nessuna partita in questa modalità per la giornata scelta.</p></section>';
+    var top = st.players[0], leaders = st.players.filter(function (p) { return top.score > 0 && p.score === top.score; });
+    h += '<div class="tiles"><div class="tile"><b class="num">' + st.nMani + '</b><span>partite</span></div><div class="tile"><b class="num">' + st.players.length + '</b><span>giocatori</span></div><div class="tile"><b class="num">' + top.score + '</b><span>punti in testa</span></div></div><div class="hl">';
+    if (leaders.length) h += '<div class="hl-card win"><span class="k">' + (d === dayKey() ? 'In testa oggi' : d ? 'Vince la giornata' : 'Più punti di sempre') + '</span><span class="v">' + esc(leaders.map(function (p) { return pname(p.id); }).join(', ')) + '</span><span class="d num">' + plural(top.score, 'punto', 'punti') + ' in ' + plural(top.mani, 'partita', 'partite') + '</span></div>';
+    var minT = Math.min(3, Math.max.apply(null, st.teams.map(function (t) { return t.mani; }).concat([0])));
+    var bestT = st.teams.filter(function (t) { return t.mani >= minT; })[0];
+    if (bestT) h += '<div class="hl-card"><span class="k">Coppia migliore</span><span class="v">' + esc(tname(bestT.ids)) + '</span><span class="d num">' + bestT.W + ' vinte su ' + bestT.mani + '</span></div>';
+    if (st.rec) h += '<div class="hl-card"><span class="k">Record punti carta</span><span class="v num">' + st.rec.pts + ' punti</span><span class="d">' + esc(tname(st.rec.ids)) + (st.rec.pts === 120 ? ' · cappotto!' : '') + '</span></div>';
+    h += '</div></section>';
+    h += '<section class="panel"><h2 class="h3">Classifica giocatori</h2><div class="st-list">';
+    st.players.forEach(function (p, i) {
+      var extra = p.ch ? '<span>aste vinte <b class="num">' + p.ch + '</b>, fatte <b class="num">' + p.chW + '</b></span><span>chiama in media a <b class="num">' + Math.round(p.bids / p.ch) + '</b></span>' : '';
+      h += statRow(i, esc(pname(p.id)), p, extra, p.score + '<small> pt</small>');
+    });
+    h += '</div></section><section class="panel"><h2 class="h3">Squadre</h2>';
+    if (!st.teams.length) h += '<p class="muted small" style="margin:0">Le squadre nascono a 4 (coppie fisse) e a 5 (chi vince l\'asta e il suo socio).</p>';
+    else {
+      h += '<div class="st-list">';
+      st.teams.forEach(function (t, i) {
+        h += statRow(i, esc(tname(t.ids)), t, '<span class="pill ' + (t.mode === 4 ? 'on' : 'm') + '">' + (t.mode === 4 ? 'coppia a 4' : 'chiamata a 5') + '</span>', pct(t.W, t.mani) + '%');
+      });
+      h += '</div>';
+    }
+    return h + '</section>';
+  }
+
+  function viewGiocatori() {
+    var used = {};
+    db.matches.forEach(function (m) { if (m.hands.length) m.players.forEach(function (p) { used[p] = (used[p] || 0) + m.hands.length; }); });
+    var h = '<h1 class="h">Anagrafica</h1><section class="panel"><h2 class="h3">Nuovo giocatore</h2>' +
+      '<form class="person-form" data-form="addPlayer"><div class="two"><label class="fl"><span>Nome</span><input class="field" id="nome" maxlength="20" autocomplete="off" autocapitalize="words" required></label>' +
+      '<label class="fl"><span>Cognome</span><input class="field" id="cognome" maxlength="24" autocomplete="off" autocapitalize="words"></label></div>' +
+      '<button class="cta" type="submit">Aggiungi all\'anagrafica</button></form></section>';
+    var list = sortedPlayers();
+    h += '<section class="panel"><div class="row" style="justify-content:space-between"><h2 class="h3">Giocatori registrati</h2><span class="small muted num">' + list.length + '</span></div>';
+    if (!list.length) h += '<p class="muted small" style="margin:0">Nessuno ancora. Aggiungi chi gioca con voi: poi li sceglierai al tavolo con un tocco.</p>';
+    h += '<div class="people">';
+    list.forEach(function (p) {
+      var armed = ui.armed === 'p:' + p.id;
+      if (ui.editPlayer === p.id) {
+        h += '<form class="person editing" data-form="editPlayer" data-id="' + p.id + '"><div class="two"><label class="fl"><span>Nome</span><input class="field" id="ed-nome" value="' + esc(p.nome) + '" maxlength="20" required></label><label class="fl"><span>Cognome</span><input class="field" id="ed-cognome" value="' + esc(p.cognome) + '" maxlength="24"></label></div>' +
+          '<div class="row"><button class="btn" type="submit">Salva</button><button class="btn soft" type="button" data-act="editPlayer" data-id="">Annulla</button>' +
+          (used[p.id] ? '' : '<button class="btn danger' + (armed ? ' armed' : '') + '" type="button" data-act="delPlayer" data-id="' + p.id + '">' + (armed ? 'Tocca ancora per eliminare' : 'Elimina') + '</button>') + '</div></form>';
+        return;
+      }
+      h += '<div class="person"><span class="avatar">' + esc(initials(p)) + '</span><div class="pn"><b>' + esc(fullName(p)) + '</b>' + '<br><span class="small muted num">' + (used[p.id] ? plural(used[p.id], 'partita giocata', 'partite giocate') : 'non ha ancora giocato') + '</span></div>' +
+        '<button class="btn soft" data-act="editPlayer" data-id="' + p.id + '">Modifica</button></div>';
+    });
+    h += '</div></section>';
+    h += '<section class="panel"><h2 class="h3">Installa Cards sul telefono</h2><div class="howto"><p><b>iPhone:</b> apri il link in Safari, tocca Condividi e poi <i>Aggiungi alla schermata Home</i>.</p><p><b>Android:</b> apri il link in Chrome, tocca il menu ⋮ e poi <i>Installa app</i> o <i>Aggiungi a schermata Home</i>.</p><p class="muted small">I punti restano salvati sul telefono di chi li segna.</p></div></section>';
+    return h;
+  }
+
+  // ---------- azioni ----------
+  function cap(x) { x = (x || '').trim().replace(/\s+/g, ' '); return x.replace(/(^|[\s'-])(\S)/g, function (m, a, c) { return a + c.toUpperCase(); }); }
+  function addPlayer(nome, cognome) {
+    nome = cap(nome); cognome = cap(cognome);
+    if (!nome) return null;
+    var full = (nome + ' ' + cognome).trim().toLowerCase();
+    var ex = db.players.filter(function (p) { return fullName(p).toLowerCase() === full; })[0];
+    if (ex) { toast(fullName(ex) + ' è già in anagrafica'); return null; }
+    var p = { id: uid(), nome: nome, cognome: cognome };
+    p.name = fullName(p);
+    db.players.push(p); save();
+    return p;
+  }
+  function resizeSlots() {
+    var s = ui.setup, n = s.mode, ids = (s.slots || []).filter(function (x) { return x && player(x); }).slice(0, n);
+    while (ids.length < n) ids.push(null);
+    s.slots = ids;
+  }
+  // Squadra A = posti 0-1, Squadra B = posti 2-3
+  function toTeam(id, t) {
+    var s = ui.setup.slots, base = t === 'A' ? 0 : 2, at = s.indexOf(id);
+    if (at === base || at === base + 1) return;
+    var f = !s[base] ? base : !s[base + 1] ? base + 1 : -1;
+    if (f < 0) { toast('La Squadra ' + t + ' è già al completo'); return; }
+    if (at >= 0) s[at] = null;
+    s[f] = id;
+  }
+  function dropEmptyActive() {
+    var cur = db.activeId && match(db.activeId);
+    if (cur && !cur.hands.length) db.matches = db.matches.filter(function (x) { return x.id !== cur.id; });
+  }
+  function newMatch(mode, players) {
+    dropEmptyActive();
+    var m = { id: uid(), date: dayKey(), ts: Date.now(), mode: mode, players: players.slice(), hands: [], closed: false };
+    db.matches.push(m); db.activeId = m.id;
+    db.lastSetup = { mode: mode, slots: players.slice() };
+    ui.entry = freshEntry(); save();
+  }
+  function addHand(m, h) {
+    m.hands.push(h); ui.entry = freshEntry(); ui.editHand = null; save(); render();
+    var r = handResult(m, h), wi = r.out.indexOf('W');
+    toast(wi < 0 ? 'Pari, nessun punto' : '+1 a ' + r.sides[wi].map(function (p) { return (player(p) || {}).nome || '?'; }).join(', '));
+  }
+  function editing() {
+    if (!ui.editHand) return null;
+    var k = ui.editHand.split(':'), m = match(k[0]);
+    return m && m.hands[+k[1]] ? { m: m, i: +k[1], h: m.hands[+k[1]] } : null;
+  }
+  function syncInputs(k) {
+    var v = ui.entry[k], a = $('#in-' + k), b = $('#rg-' + k);
+    if (a && document.activeElement !== a) a.value = v;
+    if (b) b.value = v;
+  }
+  function top() { window.scrollTo(0, 0); }
+
+  var act = {
+    tab: function (el) { ui.tab = el.dataset.tab; ui.armed = null; ui.editHand = null; render(); top(); },
+    mode: function (el) { var k = +el.dataset.v; if (ui.setup.mode === k) return; ui.setup.mode = k; resizeSlots(); render(); },
+    pick: function (el) {
+      var s = ui.setup, id = el.dataset.id, i = s.slots.indexOf(id);
+      if (i >= 0) s.slots[i] = null;
+      else { var f = s.slots.indexOf(null); if (f < 0) { toast('Tavolo al completo: togli prima qualcuno'); return; } s.slots[f] = id; }
+      render();
+    },
+    unslot: function (el) { ui.setup.slots[+el.dataset.i] = null; render(); },
+    toTeam: function (el) { toTeam(el.dataset.id, el.dataset.t); render(); },
+    shuffle: function () {
+      var s = ui.setup.slots.slice();
+      for (var i = s.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = s[i]; s[i] = s[j]; s[j] = x; }
+      ui.setup.slots = s; render(); toast(tname(s.slice(0, 2)) + ' contro ' + tname(s.slice(2)));
+    },
+    swap: function () { var s = ui.setup.slots; ui.setup.slots = [s[0], s[2], s[1], s[3]]; render(); },
+    start: function () { var s = ui.setup; if (!s.slots.every(Boolean)) return; newMatch(s.mode, s.slots); render(); top(); },
+    bump: function (el) {
+      var k = el.dataset.k; ui.entry[k] = clamp(ui.entry[k] + +el.dataset.d, 0, 120);
+      var a = $('#in-' + k); if (a) a.value = ui.entry[k];
+      syncInputs(k); updatePreview();
+    },
+    caller: function (el) { if (ui.entry.caller !== el.dataset.id) ui.entry.partner = null; ui.entry.caller = el.dataset.id; render(); },
+    partner: function (el) { ui.entry.partner = el.dataset.id; render(); },
+    bid: function (el) { ui.entry.bid = +el.dataset.v; render(); },
+    withPts: function () { ui.entry.withPts = !ui.entry.withPts; if (active() && active().mode === 5) ui.entry.a = ui.entry.bid; render(); },
+    saveWin: function (el) { var m = active(); if (m) addHand(m, { ts: Date.now(), winner: +el.dataset.v }); },
+    saveFive: function (el) {
+      var m = active(), e = ui.entry; if (!m || !e.caller || !e.partner) return;
+      addHand(m, { ts: Date.now(), caller: e.caller, partner: e.partner === 'solo' ? e.caller : e.partner, bid: e.bid, won: el.dataset.v === '1' });
+    },
+    saveHand: function () {
+      var m = active(); if (!m) return;
+      var e = ui.entry, pts = entryPts(m);
+      if (pts.some(function (v) { return v < 0; })) return;
+      var h = { ts: Date.now(), pts: pts };
+      if (m.mode === 5) {
+        if (!e.caller || !e.partner) return;
+        h.caller = e.caller; h.partner = e.partner === 'solo' ? e.caller : e.partner; h.bid = e.bid; h.won = pts[0] >= e.bid;
+      } else {
+        h.winner = outFromPts(m, pts).indexOf('W');
+      }
+      addHand(m, h);
+    },
+    undo: function () { var m = active(); if (!m || !m.hands.length) return; m.hands.pop(); ui.editHand = null; save(); render(); toast('Ultima partita annullata'); },
+    endTable: function () {
+      var m = active(); if (m) ui.setup = { mode: m.mode, slots: m.players.slice() };
+      dropEmptyActive(); if (m) m.closed = true; db.activeId = null; save(); render(); top();
+    },
+    resume: function (el) {
+      var m = match(el.dataset.id); if (!m || m.date !== dayKey()) return;
+      var cur = active(); if (cur && cur.id !== m.id) { if (cur.hands.length) cur.closed = true; else dropEmptyActive(); }
+      m.closed = false; db.activeId = m.id; ui.entry = freshEntry(); ui.editHand = null; save(); ui.tab = 'gioca'; render(); top();
+    },
+    toggleDay: function (el) { ui.openDay = ui.openDay === el.dataset.v ? null : el.dataset.v; ui.editHand = null; render(); },
+    dayStats: function (el) { ui.statsDate = el.dataset.v; ui.tab = 'stats'; render(); top(); },
+    delMatch: function (el) {
+      var id = el.dataset.id; if (!arm('m:' + id)) return;
+      db.matches = db.matches.filter(function (m) { return m.id !== id; });
+      if (db.activeId === id) db.activeId = null;
+      save(); render(); toast('Tavolo eliminato');
+    },
+    editHand: function (el) { ui.editHand = el.dataset.v || null; ui.armed = null; render(); },
+    setWon: function (el) { var x = editing(); if (!x) return; x.h.won = el.dataset.v === '1'; save(); render(); toast('Partita corretta'); },
+    setWinner: function (el) {
+      var x = editing(); if (!x) return;
+      x.h.winner = +el.dataset.v;
+      if (x.h.pts && outFromPts(x.m, x.h.pts).indexOf('W') !== x.h.winner) delete x.h.pts;
+      save(); render(); toast('Partita corretta');
+    },
+    delHand: function () {
+      var x = editing(); if (!x || !arm('h:' + ui.editHand)) return;
+      x.m.hands.splice(x.i, 1); ui.editHand = null;
+      if (!x.m.hands.length && db.activeId !== x.m.id) db.matches = db.matches.filter(function (m) { return m !== x.m; });
+      save(); render(); toast('Partita eliminata');
+    },
+    statsDay: function (el) { ui.statsDate = el.dataset.v; render(); },
+    statsMode: function (el) { ui.statsMode = el.dataset.v; render(); },
+    editPlayer: function (el) { ui.editPlayer = el.dataset.id || null; ui.armed = null; render(); var f = $('#ed-nome'); if (f) f.focus(); },
+    delPlayer: function (el) {
+      var id = el.dataset.id; if (!arm('p:' + id)) return;
+      db.players = db.players.filter(function (p) { return p.id !== id; });
+      ui.editPlayer = null; ui.setup.slots = ui.setup.slots.map(function (x) { return x === id ? null : x; });
+      save(); render();
+    }
+  };
+
+  // ---------- eventi ----------
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-act]');
+    if (!el || el.disabled) return;
+    var f = act[el.dataset.act];
+    if (f) { e.preventDefault(); f(el, e); }
+  });
+  document.addEventListener('submit', function (e) {
+    var form = e.target.closest('[data-form]'); if (!form) return;
+    e.preventDefault();
+    if (form.dataset.form === 'addPlayer') {
+      var p = addPlayer($('#nome').value, $('#cognome').value);
+      if (!p) return;
+      render(); toast(fullName(p) + ' aggiunto');
+      var again = $('#nome'); if (again) again.focus();
+    } else if (form.dataset.form === 'editPlayer') {
+      var q = player(form.dataset.id), nome = cap($('#ed-nome').value);
+      if (!q || !nome) return;
+      q.nome = nome; q.cognome = cap($('#ed-cognome').value); q.name = fullName(q);
+      ui.editPlayer = null; save(); render(); toast('Anagrafica aggiornata');
+    }
+  });
+  document.addEventListener('input', function (e) {
+    var t = e.target, m = /^(in|rg)-(a|b|bid)$/.exec(t.id || '');
+    if (!m || t.value === '') return;
+    if (m[2] === 'bid') { var v = +t.value; if (v >= 61 && v <= 120) ui.entry.bid = v; return; }
+    ui.entry[m[2]] = clamp(t.value, 0, 120);
+    syncInputs(m[2]); updatePreview();
+  });
+  document.addEventListener('focusin', function (e) { if (/^in-/.test(e.target.id || '')) e.target.select(); });
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.id === 'in-bid') { ui.entry.bid = clamp(t.value, 61, 120); render(); return; }
+    if (/^in-/.test(t.id || '')) t.value = ui.entry[t.id.slice(3)];
+  });
+
+  var toastTimer;
+  function toast(msg) {
+    var t = $('#toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2200);
+  }
+
+  // Un tavolo lasciato aperto un altro giorno non resta "in corso"
+  var cur = db.activeId && match(db.activeId);
+  if (cur && cur.date !== dayKey()) { cur.closed = true; db.activeId = null; }
+  resizeSlots();
+  render();
+
+  // Funziona offline quando l'app gira dalla sua cartella installabile (manifest presente)
+  if ('serviceWorker' in navigator && document.querySelector('link[rel="manifest"]')) {
+    try { navigator.serviceWorker.register('sw.js').catch(function () {}); } catch (e) {}
+  }
+
+  // Solo per i test automatici della logica di punteggio
+  window.__cards = { handResult: handResult, scoreOf: scoreOf, ranking: ranking };
+})();
+</script>
+
+</body>
+</html>
