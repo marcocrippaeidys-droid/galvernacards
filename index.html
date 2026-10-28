@@ -84,7 +84,7 @@ button { cursor: pointer; }
 .small { font-size: 13px; }
 
 .modes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.mode { border: 1.5px solid var(--line); background: var(--surface); border-radius: 14px; padding: 10px 6px 8px; display: grid; justify-items: center; gap: 0; }
+.mode { border: 1.5px solid var(--line); background: var(--surface); border-radius: 14px; padding: 14px 6px; display: grid; justify-items: center; gap: 0; }
 .mode b { font-family: var(--f-display); font-size: 30px; font-weight: 800; line-height: 1; }
 .mode span { font-size: 11.5px; color: var(--muted); text-align: center; line-height: 1.2; }
 .mode[aria-pressed="true"] { background: var(--felt); border-color: var(--felt); color: var(--on-felt); }
@@ -446,15 +446,15 @@ input[type="range"] { width: 100%; accent-color: var(--felt); height: 28px; }
 
   function viewSetup() {
     var s = ui.setup, n = s.mode;
-    var h = '<section class="panel"><h1 class="h">Chi gioca?</h1><p class="sub">Scegli la modalità e chi è al tavolo.</p>';
-    h += '<div class="label">Modalità</div><div class="modes">';
+    var h = '<section class="panel"><h1 class="h">Chi gioca?</h1>';
+    h += '<div class="label">Quanti giocatori</div><div class="modes">';
     [2, 3, 4, 5].forEach(function (k) {
-      h += '<button class="mode" data-act="mode" data-v="' + k + '" aria-pressed="' + (n === k) + '"><b>' + k + '</b><span>' + MODES[k].cap + '</span></button>';
+      h += '<button class="mode" data-act="mode" data-v="' + k + '" aria-pressed="' + (n === k) + '"><b>' + k + '</b></button>';
     });
     h += '</div><div class="label">Al tavolo</div>';
     var roster = sortedPlayers();
     if (!roster.length) {
-      h += '<div class="hint"><p>I giocatori si registrano nell\'<b>Anagrafica</b>, con nome e cognome. Poi qui li scegli con un tocco.</p><button class="btn" data-act="tab" data-tab="giocatori">Vai all\'anagrafica</button></div>';
+      h += '<div class="hint"><p>Nessun giocatore registrato.</p><button class="btn" data-act="tab" data-tab="giocatori">Vai all\'anagrafica</button></div>';
     } else if (n === 4) {
       h += '<div class="teams">';
       ['A', 'B'].forEach(function (t) {
@@ -464,7 +464,7 @@ input[type="range"] { width: 100%; accent-color: var(--felt); height: 28px; }
       h += '</div>';
       var free = roster.filter(function (p) { return s.slots.indexOf(p.id) < 0; });
       if (free.length) {
-        h += '<div class="small muted center">Tocca <b>A</b> o <b>B</b> accanto a un nome:</div><div class="chips">';
+        h += '<div class="chips">';
         free.forEach(function (p) {
           h += '<div class="pick"><span>' + esc(fullName(p)) + '</span><button data-act="toTeam" data-id="' + p.id + '" data-t="A"' + (s.slots[0] && s.slots[1] ? ' disabled' : '') + ' aria-label="Squadra A">A</button><button data-act="toTeam" data-id="' + p.id + '" data-t="B"' + (s.slots[2] && s.slots[3] ? ' disabled' : '') + ' aria-label="Squadra B">B</button></div>';
         });
@@ -474,13 +474,12 @@ input[type="range"] { width: 100%; accent-color: var(--felt); height: 28px; }
     } else {
       h += '<div class="slots">';
       for (var i = 0; i < n; i++) h += slotHtml(i);
-      h += '</div><div class="small muted center">Tocca un nome per metterlo al tavolo.</div><div class="chips center">';
+      h += '</div><div class="chips center">';
       roster.forEach(function (p) {
         h += '<button class="chip" data-act="pick" data-id="' + p.id + '" aria-pressed="' + (s.slots.indexOf(p.id) >= 0) + '">' + esc(fullName(p)) + '</button>';
       });
       h += '</div>';
     }
-    h += '<div class="small muted">' + ruleText(n) + '</div>';
     var full = s.slots.length === n && s.slots.every(Boolean);
     h += '<button class="cta" data-act="start"' + (full ? '' : ' disabled') + '>' + (full ? 'Inizia a giocare' : 'Scegli ' + n + ' giocatori') + '</button></section>';
     var recent = dayMatches(dayKey()).slice(-2).reverse();
@@ -490,12 +489,6 @@ input[type="range"] { width: 100%; accent-color: var(--felt); height: 28px; }
       h += '</section>';
     }
     return h;
-  }
-
-  function ruleText(n) {
-    if (n === 4) return 'Ogni partita vinta dà 1 punto a entrambi i giocatori della coppia.';
-    if (n === 5) return 'Chi vince l\'asta chiama una carta e gioca con chi ce l\'ha. Se fanno i punti chiamati: 1 punto a testa. Se no: 1 punto a ognuno degli altri tre.';
-    return 'Ogni partita vinta dà 1 punto in classifica.';
   }
 
   function tableTitle(m) {
@@ -563,10 +556,9 @@ input[type="range"] { width: 100%; accent-color: var(--felt); height: 28px; }
     h += '<button class="chip" data-act="partner" data-id="solo" aria-pressed="' + (e.partner === 'solo') + '">Era sua: gioca da solo</button></div>';
     if (!e.partner) return h;
     var team = e.partner === 'solo' ? [e.caller] : [e.caller, e.partner];
-    var others = m.players.filter(function (p) { return team.indexOf(p) < 0; });
     h += '<div class="step"><span class="step-n">4</span><span>' + esc(tname(team)) + ' ' + (team.length > 1 ? 'hanno' : 'ha') + ' fatto <b class="num">' + e.bid + '</b>?</span></div>';
     if (!e.withPts) {
-      h += '<div class="verdict"><button class="v-win" data-act="saveFive" data-v="1">Sì, fatto<small>1 punto a ' + esc(tname(team)) + '</small></button><button class="v-lose" data-act="saveFive" data-v="0">No, non fatto<small>1 punto a ' + esc(others.map(function (p) { return (player(p) || {}).nome || '?'; }).join(', ')) + '</small></button></div>';
+      h += '<div class="verdict"><button class="v-win" data-act="saveFive" data-v="1">Sì, fatto</button><button class="v-lose" data-act="saveFive" data-v="0">No, non fatto</button></div>';
       return h + '<button class="linkish" data-act="withPts">Segna i punti carta</button>';
     }
     h += ptsBlock('a', tname(team), e.a);
